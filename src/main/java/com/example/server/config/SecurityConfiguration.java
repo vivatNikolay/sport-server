@@ -1,61 +1,45 @@
 package com.example.server.config;
 
+import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import com.example.server.models.Account;
-import com.example.server.repositories.AccountRepository;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @Order(SecurityProperties.BASIC_AUTH_ORDER)
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class SecurityConfiguration {
 
-    @Inject
-    private AccountRepository accountRepository;
+    @Resource
+    private UserDetailsService userDetailsService;
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable()
-                .authorizeRequests().antMatchers("/api/**").authenticated().and().httpBasic();
-        //здесь настроить разные урлы на разные роли
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf().disable().authorizeRequests()
+                .antMatchers("/**").authenticated()
+                .antMatchers("/manager/**").hasAnyRole("MANAGER", "ADMIN")
+                .antMatchers("/admin/**").hasRole("ADMIN")
+                .and().httpBasic();
+        return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     @Inject
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService());
+        auth.userDetailsService(userDetailsService);
     }
-
-    @Override
-    protected UserDetailsService userDetailsService() {
-        return new UserDetailsService() {
-
-            @Transactional(readOnly = true)
-            @Override
-            public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-                Account account = accountRepository.findByEmail(email);
-                if (account == null) {
-                    throw new UsernameNotFoundException(email);
-                }
-                return User.withUsername(account.getEmail())
-                        .password(account.getPassword())
-                        .disabled(false)
-                        .authorities("USER")
-                        .build();
-            }
-
-        };
-    }
-
 }
