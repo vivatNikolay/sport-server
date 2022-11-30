@@ -13,11 +13,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
 import java.util.Date;
 import java.util.List;
 
 @RestController
-@RequestMapping("/sportsman")
+@RequestMapping("/account")
 public class AccountController {
 
     @Autowired
@@ -26,29 +27,9 @@ public class AccountController {
     @Autowired
     private SubscriptionService subscriptionService;
 
-    @RequestMapping(value = "/all", method = RequestMethod.GET)
-    public List<Account> getAllAccounts() {
-        return accountRepository.findAll();
-    }
-
-    @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public Long createSportsman(@RequestBody Account newAccount) {
-        Account account = new Account();
-        account.setEmail("dasha@gmail.com");
-        account.setPassword("1111");
-        account.setPhone("+375291232124");
-        account.setFirstName("Darya");
-        account.setDateOfBirth(new Date(1998, 8, 23));
-        account.setGender(true);
-        account.setIconNum(account.getGender() ? 1 : 2);
-        account.setRole(Role.SPORTSMAN);
-        accountRepository.save(account);
-        return account.getId();
-    }
-
-    @RequestMapping(value = "/{email}", method = RequestMethod.PUT)
-    public Long updateAccountByEmail(@PathVariable("email") String email, @RequestBody Account newAccount) {
-        Account account = accountRepository.findByEmail(email);
+    @RequestMapping(value = "/update", method = RequestMethod.PUT)
+    public Long updateAccountByEmail(Principal principal, @RequestBody Account newAccount) {
+        Account account = accountRepository.findByEmail(principal.getName());
         account.setPassword(newAccount.getPassword());
         account.setPhone(newAccount.getPhone());
         account.setFirstName(newAccount.getFirstName());
@@ -58,18 +39,13 @@ public class AccountController {
         return account.getId();
     }
 
-    @RequestMapping(value = "/{email}", method = RequestMethod.GET)
-    public ResponseEntity<Account> getAccountByEmail(@PathVariable("email") String email) {
-        Account account = accountRepository.findByEmail(email);
+    @RequestMapping(value = "/login", method = RequestMethod.GET)
+    public ResponseEntity<Account> getAccountByEmail(Principal principal) {
+        Account account = accountRepository.findByEmail(principal.getName());
         if (account != null) {
             subscriptionService.updateSubscriptions(account);
             return ResponseEntity.ok(account);
         }
         return new ResponseEntity(HttpStatus.NOT_FOUND);
-    }
-
-    @RequestMapping(value = "/{email}", method = RequestMethod.DELETE)
-    public void deleteAccount(@PathVariable("email") String email) {
-        accountRepository.delete(accountRepository.findByEmail(email));
     }
 }
