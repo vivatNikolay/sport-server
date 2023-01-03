@@ -27,10 +27,6 @@ public class SportsmanDetailsController {
 
     @Autowired
     private AccountRepository accountRepository;
-
-    @Autowired
-    private SubscriptionService subscriptionService;
-
     @Autowired
     private VisitRepository visitRepository;
 
@@ -38,7 +34,7 @@ public class SportsmanDetailsController {
     public ResponseEntity<List<Subscription>> getSubscriptions(@PathVariable("id") Long id, Principal principal) {
         Optional<Account> account = accountRepository.findById(id);
         if (checkAccess(principal, account.get())) {
-            return ResponseEntity.ok(subscriptionService.updateSubscriptions(account.get()));
+            return ResponseEntity.ok(account.get().getSubscriptions());
         }
         return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
@@ -62,7 +58,7 @@ public class SportsmanDetailsController {
             List<Visit> visits = Collections.EMPTY_LIST;
             if (listSize != 0) {
                 List<Subscription> subscriptions = account.get().getSubscriptions();
-                visits = visitRepository.findBySubscription(subscriptions.get(listSize - 1));
+                visits = subscriptions.get(listSize - 1).getVisits();
                 visits.sort(Comparator.comparing(Visit::getDate));
             }
             return ResponseEntity.ok(visits);

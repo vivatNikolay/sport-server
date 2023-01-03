@@ -1,5 +1,6 @@
 package com.example.server.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,10 +29,8 @@ public class Visit {
     private Long id;
     @Temporal(TemporalType.DATE)
     private Date date;
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name="account_id", nullable=false)
     Account account;
-    @ManyToOne
-    @JoinColumn(name="subscription_id")
-    Subscription subscription;
 }

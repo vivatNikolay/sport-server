@@ -24,9 +24,6 @@ public class AccountController {
     @Autowired
     private AccountRepository accountRepository;
 
-    @Autowired
-    private SubscriptionService subscriptionService;
-
     @RequestMapping(value = "/update", method = RequestMethod.PUT)
     public Long updateAccountByEmail(Principal principal, @RequestBody Account newAccount) {
         Account account = accountRepository.findByEmail(principal.getName());
@@ -43,7 +40,6 @@ public class AccountController {
     public ResponseEntity<Account> getAccountByEmail(Principal principal) {
         Account account = accountRepository.findByEmail(principal.getName());
         if (account != null) {
-            subscriptionService.updateSubscriptions(account);
             return ResponseEntity.ok(account);
         }
         return new ResponseEntity(HttpStatus.NOT_FOUND);

@@ -9,9 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/manager")
@@ -23,9 +23,29 @@ public class ManagerController {
     @Autowired
     private SubscriptionService subscriptionService;
 
-    @RequestMapping(value = "/allSportsmen", method = RequestMethod.GET)
-    public List<Account> getAllSportsmen() {
-        return accountRepository.findAllByRole(Role.USER);
+    @RequestMapping(value = "/sportsmen", method = RequestMethod.GET)
+    public List<Account> getSportsmenByQuery(@RequestParam("query") String query) {
+        return accountRepository.findAllByRole(Role.USER)
+                .stream().filter(acc -> acc.getFirstName().toLowerCase().contains(query)).collect(Collectors.toList());
+    }
+
+    @RequestMapping(value = "/sportsman", method = RequestMethod.GET)
+    public ResponseEntity<Account> getSportsmanByEmail(@RequestParam("email") String email) {
+        Account account = accountRepository.findByEmail(email);
+        if (Role.USER.equals(account.getRole())) {
+            return ResponseEntity.ok(account);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @RequestMapping(value = "/addVisit", method = RequestMethod.POST)
+    public ResponseEntity<Long> addVisitToSportsman(@RequestParam("id") Long id) {
+        Optional<Account> account = accountRepository.findById(id);
+        if (account.isPresent() && Role.USER.equals(account.get().getRole())) {
+            subscriptionService.addVisit(account.get());
+            return ResponseEntity.ok(account.get().getId());
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
 
@@ -33,7 +53,6 @@ public class ManagerController {
     public ResponseEntity<Account> getSportsmanById(@PathVariable("id") Long id) {
         Optional<Account> account = accountRepository.findById(id);
         if (account.isPresent() && account.get().getRole().equals(Role.USER)) {
-            subscriptionService.updateSubscriptions(account.get());
             return ResponseEntity.ok(account.get());
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);

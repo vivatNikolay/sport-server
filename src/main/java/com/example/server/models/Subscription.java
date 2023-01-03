@@ -6,13 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -29,5 +26,6 @@ public class Subscription {
     @Temporal(TemporalType.DATE)
     private Date dateOfEnd;
     private int numberOfVisits;
-    private int visitCounter;
+    @OneToMany(cascade = {CascadeType.ALL})
+    private List<Visit> visits = Collections.emptyList();
 }

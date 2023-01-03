@@ -10,5 +10,4 @@ import java.util.Optional;
 
 public interface VisitRepository  extends JpaRepository<Visit, Long> {
     List<Visit> findByAccount(Optional<Account> account);
-    List<Visit> findBySubscription(Subscription subscription);
 }
