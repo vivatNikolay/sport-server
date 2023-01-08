@@ -23,18 +23,20 @@ public class SubscriptionService {
 
     public void addVisit(Account account) {
         List<Subscription> subscriptions = account.getSubscriptions();
-        int lastIndex = subscriptions.size() - 1;
         Visit newVisit = new Visit();
         newVisit.setDate(Date.valueOf(LocalDate.now()));
         newVisit.setAccount(account);
-        boolean isActive = !subscriptions.get(lastIndex).getDateOfEnd().before(Date.valueOf(LocalDate.now())) ||
-                !subscriptions.get(lastIndex).getDateOfPurchase().after(Date.valueOf(LocalDate.now()));
-        if (!subscriptions.isEmpty() && isActive) {
-            subscriptions.get(lastIndex).getVisits().add(newVisit);
-            account.setSubscriptions(subscriptions);
-            accountRepository.save(account);
-        } else {
-            visitRepository.save(newVisit);
+        if (!subscriptions.isEmpty()) {
+            int lastIndex = subscriptions.size() - 1;
+            boolean isActive = !subscriptions.get(lastIndex).getDateOfEnd().before(Date.valueOf(LocalDate.now())) ||
+                    !subscriptions.get(lastIndex).getDateOfPurchase().after(Date.valueOf(LocalDate.now()));
+            if (isActive) {
+                subscriptions.get(lastIndex).getVisits().add(newVisit);
+                account.setSubscriptions(subscriptions);
+                accountRepository.save(account);
+                return;
+            }
         }
+        visitRepository.save(newVisit);
     }
 }
