@@ -90,4 +90,16 @@ public class ManagerController {
         accountRepository.save(newAccount);
         return ResponseEntity.ok(newAccount.getId());
     }
+
+    @RequestMapping(value = "/edit", method = RequestMethod.PUT)
+    public Long updateAccountByEmail(@RequestBody Account newAccount) {
+        Account account = accountRepository.findByEmail(newAccount.getEmail());
+        account.setPassword(newAccount.getPassword());
+        account.setPhone(newAccount.getPhone());
+        account.setFirstName(newAccount.getFirstName());
+        account.setGender(newAccount.getGender());
+        account.setIconNum(newAccount.getIconNum());
+        accountRepository.save(account);
+        return account.getId();
+    }
 }
