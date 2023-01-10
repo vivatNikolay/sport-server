@@ -42,40 +42,31 @@ public class ManagerController {
     }
 
     @RequestMapping(value = "/addVisit", method = RequestMethod.POST)
-    public ResponseEntity<Long> addVisitToSportsman(@RequestParam("id") Long id) {
-        Optional<Account> account = accountRepository.findById(id);
-        if (account.isPresent() && Role.USER.equals(account.get().getRole())) {
-            subscriptionService.addVisit(account.get());
-            return ResponseEntity.ok(account.get().getId());
+    public ResponseEntity<Long> addVisitToSportsman(@RequestParam("email") String email) {
+        Account account = accountRepository.findByEmail(email);
+        if (account != null && Role.USER.equals(account.getRole())) {
+            subscriptionService.addVisit(account);
+            return ResponseEntity.ok(account.getId());
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @RequestMapping(value = "/addMembership", method = RequestMethod.POST)
-    public ResponseEntity<Long> addMembership(@RequestParam("accountId") Long id,
+    public ResponseEntity<Long> addMembership(@RequestParam("email") String email,
                                                 @RequestParam("dateOfPurchase") @DateTimeFormat(pattern = "yyyy-MM-dd") Date dateOfPurchase,
                                                 @RequestParam("dateOfEnd") @DateTimeFormat(pattern = "yyyy-MM-dd") Date dateOfEnd,
                                                 @RequestParam("numberOfVisits") int numberOfVisits) {
-        Optional<Account> account = accountRepository.findById(id);
-        if (account.isPresent() && Role.USER.equals(account.get().getRole())) {
+        Account account = accountRepository.findByEmail(email);
+        if (account != null && Role.USER.equals(account.getRole())) {
             Subscription newSub = new Subscription();
             newSub.setDateOfPurchase(dateOfPurchase);
             newSub.setDateOfEnd(dateOfEnd);
             newSub.setNumberOfVisits(numberOfVisits);
-            List<Subscription> subscriptions = account.get().getSubscriptions();
+            List<Subscription> subscriptions = account.getSubscriptions();
             subscriptions.add(newSub);
-            account.get().setSubscriptions(subscriptions);
-            accountRepository.save(account.get());
-            return ResponseEntity.ok(account.get().getId());
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
-
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public ResponseEntity<Account> getSportsmanById(@PathVariable("id") Long id) {
-        Optional<Account> account = accountRepository.findById(id);
-        if (account.isPresent() && account.get().getRole().equals(Role.USER)) {
-            return ResponseEntity.ok(account.get());
+            account.setSubscriptions(subscriptions);
+            accountRepository.save(account);
+            return ResponseEntity.ok(account.getId());
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }

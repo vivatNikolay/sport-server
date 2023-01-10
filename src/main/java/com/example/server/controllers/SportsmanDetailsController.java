@@ -30,19 +30,19 @@ public class SportsmanDetailsController {
     @Autowired
     private VisitRepository visitRepository;
 
-    @RequestMapping(value = "/subscriptions/{id}", method = RequestMethod.GET)
-    public ResponseEntity<List<Subscription>> getSubscriptions(@PathVariable("id") Long id, Principal principal) {
-        Optional<Account> account = accountRepository.findById(id);
-        if (checkAccess(principal, account.get())) {
-            return ResponseEntity.ok(account.get().getSubscriptions());
+    @RequestMapping(value = "/subscriptions/{email}", method = RequestMethod.GET)
+    public ResponseEntity<List<Subscription>> getSubscriptions(@PathVariable("email") String email, Principal principal) {
+        Account account = accountRepository.findByEmail(email);
+        if (checkAccess(principal, account)) {
+            return ResponseEntity.ok(account.getSubscriptions());
         }
         return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
-    @RequestMapping(value = "/visits/{id}", method = RequestMethod.GET)
-    public ResponseEntity<List<Visit>> getVisits(@PathVariable("id") Long id, Principal principal) {
-        Optional<Account> account = accountRepository.findById(id);
-        if (checkAccess(principal, account.get())) {
+    @RequestMapping(value = "/visits/{email}", method = RequestMethod.GET)
+    public ResponseEntity<List<Visit>> getVisits(@PathVariable("email") String email, Principal principal) {
+        Account account = accountRepository.findByEmail(email);
+        if (checkAccess(principal, account)) {
             List<Visit> visits = visitRepository.findByAccount(account);
             visits.sort(Comparator.comparing(Visit::getDate));
             return ResponseEntity.ok(visits);
@@ -50,14 +50,14 @@ public class SportsmanDetailsController {
         return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
-    @RequestMapping(value = "/visitsBySubscription/{id}", method = RequestMethod.GET)
-    public ResponseEntity<List<Visit>> getVisitsOfSubscription(@PathVariable("id") Long id, Principal principal) {
-        Optional<Account> account = accountRepository.findById(id);
-        if (checkAccess(principal, account.get())) {
-            int listSize = account.get().getSubscriptions().size();
+    @RequestMapping(value = "/visitsBySubscription/{email}", method = RequestMethod.GET)
+    public ResponseEntity<List<Visit>> getVisitsOfSubscription(@PathVariable("email") String email, Principal principal) {
+        Account account = accountRepository.findByEmail(email);
+        if (checkAccess(principal, account)) {
+            int listSize = account.getSubscriptions().size();
             List<Visit> visits = Collections.EMPTY_LIST;
             if (listSize != 0) {
-                List<Subscription> subscriptions = account.get().getSubscriptions();
+                List<Subscription> subscriptions = account.getSubscriptions();
                 visits = subscriptions.get(listSize - 1).getVisits();
                 visits.sort(Comparator.comparing(Visit::getDate));
             }
