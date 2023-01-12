@@ -22,7 +22,7 @@ public class Subscription {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Temporal(TemporalType.DATE)
-    private Date dateOfPurchase;
+    private Date dateOfStart;
     @Temporal(TemporalType.DATE)
     private Date dateOfEnd;
     private int numberOfVisits;

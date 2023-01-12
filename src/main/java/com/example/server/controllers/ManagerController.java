@@ -53,13 +53,13 @@ public class ManagerController {
 
     @RequestMapping(value = "/addMembership", method = RequestMethod.POST)
     public ResponseEntity<Long> addMembership(@RequestParam("email") String email,
-                                                @RequestParam("dateOfPurchase") @DateTimeFormat(pattern = "yyyy-MM-dd") Date dateOfPurchase,
+                                                @RequestParam("dateOfStart") @DateTimeFormat(pattern = "yyyy-MM-dd") Date dateOfPurchase,
                                                 @RequestParam("dateOfEnd") @DateTimeFormat(pattern = "yyyy-MM-dd") Date dateOfEnd,
                                                 @RequestParam("numberOfVisits") int numberOfVisits) {
         Account account = accountRepository.findByEmail(email);
         if (account != null && Role.USER.equals(account.getRole())) {
             Subscription newSub = new Subscription();
-            newSub.setDateOfPurchase(dateOfPurchase);
+            newSub.setDateOfStart(dateOfPurchase);
             newSub.setDateOfEnd(dateOfEnd);
             newSub.setNumberOfVisits(numberOfVisits);
             List<Subscription> subscriptions = account.getSubscriptions();

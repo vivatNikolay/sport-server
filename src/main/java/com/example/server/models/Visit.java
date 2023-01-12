@@ -26,6 +26,7 @@ import java.util.Date;
 public class Visit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore
     private Long id;
     @Temporal(TemporalType.DATE)
     private Date date;

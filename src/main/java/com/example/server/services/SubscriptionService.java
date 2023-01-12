@@ -28,8 +28,9 @@ public class SubscriptionService {
         newVisit.setAccount(account);
         if (!subscriptions.isEmpty()) {
             int lastIndex = subscriptions.size() - 1;
-            boolean isActive = !subscriptions.get(lastIndex).getDateOfEnd().before(Date.valueOf(LocalDate.now())) ||
-                    !subscriptions.get(lastIndex).getDateOfPurchase().after(Date.valueOf(LocalDate.now()));
+            boolean isActive = (!subscriptions.get(lastIndex).getDateOfEnd().before(Date.valueOf(LocalDate.now())) ||
+                    !subscriptions.get(lastIndex).getDateOfStart().after(Date.valueOf(LocalDate.now()))) &&
+                    subscriptions.get(lastIndex).getNumberOfVisits() > subscriptions.get(lastIndex).getVisits().size();
             if (isActive) {
                 subscriptions.get(lastIndex).getVisits().add(newVisit);
                 account.setSubscriptions(subscriptions);
