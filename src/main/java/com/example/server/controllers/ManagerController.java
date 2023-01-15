@@ -11,9 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -27,9 +25,16 @@ public class ManagerController {
     private SubscriptionService subscriptionService;
 
     @RequestMapping(value = "/sportsmen", method = RequestMethod.GET)
-    public List<Account> getSportsmenByQuery(@RequestParam("query") String query) {
-        return accountRepository.findAllByRole(Role.USER)
-                .stream().filter(acc -> acc.getFirstName().toLowerCase().contains(query)).collect(Collectors.toList());
+    public Set<Account> getSportsmenByQuery(@RequestParam("query") String query) {
+        String[] words = query.toLowerCase().split(" ", 3);
+        List<Account> allUsers = accountRepository.findAllByRole(Role.USER);
+        Set<Account> resultList = new HashSet<Account>(Collections.EMPTY_SET);
+        for (String word : words) {
+            resultList.addAll(allUsers.stream().filter((user) ->
+                    user.getFirstName().toLowerCase().contains(word) || user.getLastName().toLowerCase().contains(word)
+            ).collect(Collectors.toSet()));
+        }
+        return resultList;
     }
 
     @RequestMapping(value = "/sportsman", method = RequestMethod.GET)
