@@ -46,12 +46,22 @@ public class ManagerController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @RequestMapping(value = "/addVisit", method = RequestMethod.POST)
-    public ResponseEntity<Long> addVisitToSportsman(@RequestParam("email") String email) {
+    @RequestMapping(value = "/addSingleVisit", method = RequestMethod.POST)
+    public ResponseEntity<Long> addSingleVisit(@RequestParam("email") String email) {
         Account account = accountRepository.findByEmail(email);
         if (account != null && Role.USER.equals(account.getRole())) {
-            subscriptionService.addVisit(account);
+            subscriptionService.addSingleVisit(account);
             return ResponseEntity.ok(account.getId());
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @RequestMapping(value = "/addVisitToMembership", method = RequestMethod.POST)
+    public ResponseEntity<Long> addVisitToMembership(@RequestParam("email") String email) {
+        Account account = accountRepository.findByEmail(email);
+        if (account != null && Role.USER.equals(account.getRole())) {
+            boolean isAdded = subscriptionService.addVisitToMembership(account);
+            return isAdded ? ResponseEntity.ok(account.getId()) : new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }

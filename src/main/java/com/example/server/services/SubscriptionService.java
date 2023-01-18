@@ -21,7 +21,14 @@ public class SubscriptionService {
     @Autowired
     private VisitRepository visitRepository;
 
-    public void addVisit(Account account) {
+    public void addSingleVisit(Account account) {
+        Visit newVisit = new Visit();
+        newVisit.setDate(Date.valueOf(LocalDate.now()));
+        newVisit.setAccount(account);
+        visitRepository.save(newVisit);
+    }
+
+    public boolean addVisitToMembership(Account account) {
         List<Subscription> subscriptions = account.getSubscriptions();
         Visit newVisit = new Visit();
         newVisit.setDate(Date.valueOf(LocalDate.now()));
@@ -35,9 +42,9 @@ public class SubscriptionService {
                 subscriptions.get(lastIndex).getVisits().add(newVisit);
                 account.setSubscriptions(subscriptions);
                 accountRepository.save(account);
-                return;
+                return true;
             }
         }
-        visitRepository.save(newVisit);
+        return false;
     }
 }
