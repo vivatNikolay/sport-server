@@ -103,8 +103,10 @@ public class ManagerController {
         account.setPassword(newAccount.getPassword());
         account.setPhone(newAccount.getPhone());
         account.setFirstName(newAccount.getFirstName());
+        account.setLastName(newAccount.getLastName());
         account.setGender(newAccount.getGender());
         account.setIconNum(newAccount.getIconNum());
+        account.setDateOfBirth(newAccount.getDateOfBirth());
         accountRepository.save(account);
         return account.getId();
     }
