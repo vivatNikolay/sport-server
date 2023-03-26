@@ -47,27 +47,27 @@ public class ManagerController {
     }
 
     @RequestMapping(value = "/addSingleVisit", method = RequestMethod.POST)
-    public ResponseEntity<Long> addSingleVisit(@RequestParam("email") String email) {
+    public ResponseEntity<String> addSingleVisit(@RequestParam("email") String email) {
         Account account = accountRepository.findByEmail(email);
         if (account != null && Role.USER.equals(account.getRole())) {
             subscriptionService.addSingleVisit(account);
-            return ResponseEntity.ok(account.getId());
+            return ResponseEntity.ok(account.getEmail());
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @RequestMapping(value = "/addVisitToMembership", method = RequestMethod.POST)
-    public ResponseEntity<Long> addVisitToMembership(@RequestParam("email") String email) {
+    public ResponseEntity<String> addVisitToMembership(@RequestParam("email") String email) {
         Account account = accountRepository.findByEmail(email);
         if (account != null && Role.USER.equals(account.getRole())) {
             boolean isAdded = subscriptionService.addVisitToMembership(account);
-            return isAdded ? ResponseEntity.ok(account.getId()) : new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
+            return isAdded ? ResponseEntity.ok(account.getEmail()) : new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @RequestMapping(value = "/addMembership", method = RequestMethod.POST)
-    public ResponseEntity<Long> addMembership(@RequestParam("email") String email,
+    public ResponseEntity<String> addMembership(@RequestParam("email") String email,
                                                 @RequestParam("dateOfStart") @DateTimeFormat(pattern = "yyyy-MM-dd") Date dateOfPurchase,
                                                 @RequestParam("dateOfEnd") @DateTimeFormat(pattern = "yyyy-MM-dd") Date dateOfEnd,
                                                 @RequestParam("numberOfVisits") int numberOfVisits) {
@@ -81,24 +81,24 @@ public class ManagerController {
             subscriptions.add(newSub);
             account.setSubscriptions(subscriptions);
             accountRepository.save(account);
-            return ResponseEntity.ok(account.getId());
+            return ResponseEntity.ok(account.getEmail());
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public ResponseEntity<Long> createSportsman(@RequestBody Account newAccount) {
+    public ResponseEntity<String> createSportsman(@RequestBody Account newAccount) {
         Account account = accountRepository.findByEmail(newAccount.getEmail());
         if (account != null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         newAccount.setRole(Role.USER);
         accountRepository.save(newAccount);
-        return ResponseEntity.ok(newAccount.getId());
+        return ResponseEntity.ok(newAccount.getEmail());
     }
 
     @RequestMapping(value = "/edit", method = RequestMethod.PUT)
-    public Long updateAccountByEmail(@RequestBody Account newAccount) {
+    public String updateAccountByEmail(@RequestBody Account newAccount) {
         Account account = accountRepository.findByEmail(newAccount.getEmail());
         account.setPassword(newAccount.getPassword());
         account.setPhone(newAccount.getPhone());
@@ -108,6 +108,6 @@ public class ManagerController {
         account.setIconNum(newAccount.getIconNum());
         account.setDateOfBirth(newAccount.getDateOfBirth());
         accountRepository.save(account);
-        return account.getId();
+        return account.getEmail();
     }
 }
