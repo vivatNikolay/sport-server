@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -25,7 +26,8 @@ public class ManagerController {
     private SubscriptionService subscriptionService;
 
     @RequestMapping(value = "/sportsmen", method = RequestMethod.GET)
-    public Set<Account> getSportsmenByQuery(@RequestParam("query") String query) {
+    public Set<Account> getSportsmenByQuery(@RequestParam("query") String query, HttpServletResponse httpServletResponse) {
+        httpServletResponse.setCharacterEncoding("UTF-8");
         String[] words = query.toLowerCase().split(" ", 3);
         List<Account> allUsers = accountRepository.findAllByRole(Role.USER);
         Set<Account> resultList = new HashSet<Account>(Collections.EMPTY_SET);
@@ -38,7 +40,8 @@ public class ManagerController {
     }
 
     @RequestMapping(value = "/sportsman", method = RequestMethod.GET)
-    public ResponseEntity<Account> getSportsmanByEmail(@RequestParam("email") String email) {
+    public ResponseEntity<Account> getSportsmanByEmail(@RequestParam("email") String email, HttpServletResponse httpServletResponse) {
+        httpServletResponse.setCharacterEncoding("UTF-8");
         Account account = accountRepository.findByEmail(email);
         if (Role.USER.equals(account.getRole())) {
             return ResponseEntity.ok(account);

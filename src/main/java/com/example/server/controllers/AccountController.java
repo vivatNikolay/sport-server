@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
 import java.security.Principal;
 
 @RestController
@@ -32,8 +33,9 @@ public class AccountController {
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
-    public ResponseEntity<Account> getAccountByEmail(Principal principal) {
+    public ResponseEntity<Account> getAccountByEmail(Principal principal, HttpServletResponse httpServletResponse) {
         Account account = accountRepository.findByEmail(principal.getName());
+        httpServletResponse.setCharacterEncoding("UTF-8");
         if (account != null) {
             return ResponseEntity.ok(account);
         }

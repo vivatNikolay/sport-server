@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
 import java.security.Principal;
 import java.util.Collections;
 import java.util.Comparator;
@@ -40,7 +41,9 @@ public class SportsmanDetailsController {
     }
 
     @RequestMapping(value = "/visits/{email}", method = RequestMethod.GET)
-    public ResponseEntity<List<Visit>> getVisits(@PathVariable("email") String email, Principal principal) {
+    public ResponseEntity<List<Visit>> getVisits(@PathVariable("email") String email, Principal principal,
+                                                 HttpServletResponse httpServletResponse) {
+        httpServletResponse.setCharacterEncoding("UTF-8");
         Account account = accountRepository.findByEmail(email);
         if (checkAccess(principal, account)) {
             List<Visit> visits = visitRepository.findByAccount(account);
@@ -51,7 +54,9 @@ public class SportsmanDetailsController {
     }
 
     @RequestMapping(value = "/visitsBySubscription/{email}", method = RequestMethod.GET)
-    public ResponseEntity<List<Visit>> getVisitsOfSubscription(@PathVariable("email") String email, Principal principal) {
+    public ResponseEntity<List<Visit>> getVisitsOfSubscription(@PathVariable("email") String email, Principal principal,
+                                                               HttpServletResponse httpServletResponse) {
+        httpServletResponse.setCharacterEncoding("UTF-8");
         Account account = accountRepository.findByEmail(email);
         if (checkAccess(principal, account)) {
             int listSize = account.getSubscriptions().size();
