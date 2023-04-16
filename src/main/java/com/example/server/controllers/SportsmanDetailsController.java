@@ -31,15 +31,6 @@ public class SportsmanDetailsController {
     @Autowired
     private VisitRepository visitRepository;
 
-    @RequestMapping(value = "/subscriptions/{email}", method = RequestMethod.GET)
-    public ResponseEntity<List<Subscription>> getSubscriptions(@PathVariable("email") String email, Principal principal) {
-        Account account = accountRepository.findByEmail(email);
-        if (checkAccess(principal, account)) {
-            return ResponseEntity.ok(account.getSubscriptions());
-        }
-        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-    }
-
     @RequestMapping(value = "/visits/{email}", method = RequestMethod.GET)
     public ResponseEntity<List<Visit>> getVisits(@PathVariable("email") String email, Principal principal,
                                                  HttpServletResponse httpServletResponse) {
@@ -48,24 +39,6 @@ public class SportsmanDetailsController {
         if (checkAccess(principal, account)) {
             List<Visit> visits = visitRepository.findByAccount(account);
             visits.sort(Comparator.comparing(Visit::getDate));
-            return ResponseEntity.ok(visits);
-        }
-        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-    }
-
-    @RequestMapping(value = "/visitsBySubscription/{email}", method = RequestMethod.GET)
-    public ResponseEntity<List<Visit>> getVisitsOfSubscription(@PathVariable("email") String email, Principal principal,
-                                                               HttpServletResponse httpServletResponse) {
-        httpServletResponse.setCharacterEncoding("UTF-8");
-        Account account = accountRepository.findByEmail(email);
-        if (checkAccess(principal, account)) {
-            int listSize = account.getSubscriptions().size();
-            List<Visit> visits = Collections.EMPTY_LIST;
-            if (listSize != 0) {
-                List<Subscription> subscriptions = account.getSubscriptions();
-                visits = subscriptions.get(listSize - 1).getVisits();
-                visits.sort(Comparator.comparing(Visit::getDate));
-            }
             return ResponseEntity.ok(visits);
         }
         return new ResponseEntity<>(HttpStatus.FORBIDDEN);
