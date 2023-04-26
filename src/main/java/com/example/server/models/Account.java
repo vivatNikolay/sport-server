@@ -19,6 +19,7 @@ import java.util.List;
 @Entity
 public class Account {
     @Id
+    private String id;
     private String email;
     private String password;
     private String phone;

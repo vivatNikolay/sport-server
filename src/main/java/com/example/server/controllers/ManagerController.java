@@ -40,9 +40,9 @@ public class ManagerController {
     }
 
     @RequestMapping(value = "/sportsman", method = RequestMethod.GET)
-    public ResponseEntity<Account> getSportsmanByEmail(@RequestParam("email") String email, HttpServletResponse httpServletResponse) {
+    public ResponseEntity<Account> getSportsmanById(@RequestParam("id") String id, HttpServletResponse httpServletResponse) {
         httpServletResponse.setCharacterEncoding("UTF-8");
-        Account account = accountRepository.findByEmail(email);
+        Account account = accountRepository.findById(id);
         if (Role.USER.equals(account.getRole())) {
             return ResponseEntity.ok(account);
         }
@@ -50,31 +50,31 @@ public class ManagerController {
     }
 
     @RequestMapping(value = "/addSingleVisit", method = RequestMethod.POST)
-    public ResponseEntity<String> addSingleVisit(@RequestParam("email") String email) {
-        Account account = accountRepository.findByEmail(email);
+    public ResponseEntity<String> addSingleVisit(@RequestParam("id") String id) {
+        Account account = accountRepository.findById(id);
         if (account != null && Role.USER.equals(account.getRole())) {
             subscriptionService.addSingleVisit(account);
-            return ResponseEntity.ok(account.getEmail());
+            return ResponseEntity.ok(account.getId());
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @RequestMapping(value = "/addVisitToMembership", method = RequestMethod.POST)
-    public ResponseEntity<String> addVisitToMembership(@RequestParam("email") String email) {
-        Account account = accountRepository.findByEmail(email);
+    public ResponseEntity<String> addVisitToMembership(@RequestParam("id") String id) {
+        Account account = accountRepository.findById(id);
         if (account != null && Role.USER.equals(account.getRole())) {
             boolean isAdded = subscriptionService.addVisitToMembership(account);
-            return isAdded ? ResponseEntity.ok(account.getEmail()) : new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
+            return isAdded ? ResponseEntity.ok(account.getId()) : new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @RequestMapping(value = "/addMembership", method = RequestMethod.POST)
-    public ResponseEntity<String> addMembership(@RequestParam("email") String email,
+    public ResponseEntity<String> addMembership(@RequestParam("id") String id,
                                                 @RequestParam("dateOfStart") @DateTimeFormat(pattern = "yyyy-MM-dd") Date dateOfPurchase,
                                                 @RequestParam("dateOfEnd") @DateTimeFormat(pattern = "yyyy-MM-dd") Date dateOfEnd,
                                                 @RequestParam("numberOfVisits") int numberOfVisits) {
-        Account account = accountRepository.findByEmail(email);
+        Account account = accountRepository.findById(id);
         if (account != null && Role.USER.equals(account.getRole())) {
             Subscription newSub = new Subscription();
             newSub.setDateOfStart(dateOfPurchase);
@@ -84,7 +84,7 @@ public class ManagerController {
             subscriptions.add(newSub);
             account.setSubscriptions(subscriptions);
             accountRepository.save(account);
-            return ResponseEntity.ok(account.getEmail());
+            return ResponseEntity.ok(account.getId());
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
@@ -97,12 +97,12 @@ public class ManagerController {
         }
         newAccount.setRole(Role.USER);
         accountRepository.save(newAccount);
-        return ResponseEntity.ok(newAccount.getEmail());
+        return ResponseEntity.ok(newAccount.getId());
     }
 
     @RequestMapping(value = "/edit", method = RequestMethod.PUT)
-    public String updateAccountByEmail(@RequestBody Account newAccount) {
-        Account account = accountRepository.findByEmail(newAccount.getEmail());
+    public String updateAccount(@RequestBody Account newAccount) {
+        Account account = accountRepository.findById(newAccount.getId());
         account.setPassword(newAccount.getPassword());
         account.setPhone(newAccount.getPhone());
         account.setFirstName(newAccount.getFirstName());
@@ -111,6 +111,6 @@ public class ManagerController {
         account.setIconNum(newAccount.getIconNum());
         account.setDateOfBirth(newAccount.getDateOfBirth());
         accountRepository.save(account);
-        return account.getEmail();
+        return account.getId();
     }
 }

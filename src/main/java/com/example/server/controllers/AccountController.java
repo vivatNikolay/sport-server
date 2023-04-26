@@ -29,7 +29,7 @@ public class AccountController {
         account.setGender(newAccount.getGender());
         account.setIconNum(newAccount.getIconNum());
         accountRepository.save(account);
-        return account.getEmail();
+        return account.getId();
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
